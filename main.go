@@ -98,12 +98,12 @@ func searchByIllustId(id string) error {
 		}
 
 		if res.Raw == "" {
-			link := gjson.Get(string(r.Body), "body.illust_details.url_big")
+			link := gjson.Get(string(r.Body), "body.illust_details.url")
 			parsed, _ := url.Parse(link.Str)
 			imgC.Visit(reverseProxyUrl + parsed.Path)
 		} else {
 			res.ForEach(func(key, value gjson.Result) bool {
-				link := gjson.Get(value.Raw, "url_big")
+				link := gjson.Get(value.Raw, "url")
 				parsed, _ := url.Parse(link.Str)
 				imgC.Visit(reverseProxyUrl + parsed.Path)
 				return true
