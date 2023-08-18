@@ -12,12 +12,26 @@ import (
 	"runtime"
 	"strings"
 	"time"
+	"crypto/tls"
 
 	"github.com/gocolly/colly"
 	"github.com/tidwall/gjson"
+
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 const reverseProxyUrl = "https://pimg.rem.asia"
+
+func ConnectDB(username, password, hostname, port, database string) (*gorm.DB, error) {
+	dsn := username + ":" + password + "@tcp(" + hostname + ":" + port + ")/" + database
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if err != nil {
+		return nil, err
+	}
+
+	return db, nil
+}
 
 func saveFile(content []byte, savePath string, fileNmae string) error {
 
@@ -58,9 +72,12 @@ func searchByIllustId(id string) error {
 			KeepAlive: 30 * time.Second,
 		}).DialContext,
 		MaxIdleConns:          100,
-		IdleConnTimeout:       90 * time.Second,
-		TLSHandshakeTimeout:   10 * time.Second,
+		IdleConnTimeout:       120 * time.Second,
+		TLSHandshakeTimeout:   120 * time.Second,
 		ExpectContinueTimeout: 1 * time.Second,
+		TLSClientConfig: &tls.Config{
+			ServerName: "pixiv.net", // 设置SNI字段
+		},
 	})
 
 	imgC := c.Clone()
@@ -160,5 +177,7 @@ func menu() {
 }
 
 func main() {
+	DBCon, err := ConnectDB("root", "64Vfwe1u53X9", "zeabur-gcp-asia-east1-1.clusters.zeabur.com", "32041", "pixiv");
+	fmt.Println(DBCon, err);
 	menu()
 }
