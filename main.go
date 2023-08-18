@@ -70,13 +70,14 @@ func searchByIllustId(id string) error {
 		DialContext: (&net.Dialer{
 			Timeout:   120 * time.Second,
 			KeepAlive: 30 * time.Second,
+			DualStack: true,
 		}).DialContext,
 		MaxIdleConns:          100,
 		IdleConnTimeout:       120 * time.Second,
 		TLSHandshakeTimeout:   120 * time.Second,
-		ExpectContinueTimeout: 1 * time.Second,
+		ExpectContinueTimeout: 120 * time.Second,
 		TLSClientConfig: &tls.Config{
-			ServerName: "pixiv.net", // 设置SNI字段
+			InsecureSkipVerify: true,
 		},
 	})
 
